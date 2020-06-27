@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const HttpError = require("../models/http-error");
 const User = require("../models/user");
 const Code = require("../models/code");
+const codeExpirationInterval = 10 * 60 * 1000;
 
 const getUsers = async (req, res, next) => {
   let users;
@@ -44,7 +45,7 @@ const getVerificationCode = async (req, res, next) => {
   const verifyCode = Math.floor(Math.random() * 9000 + 1000).toString();
 
   if (code) {
-    if (new Date() - code.created_at > 10 * 1000) {
+    if (new Date() - code.created_at > codeExpirationInterval) {
       code.value = verifyCode;
     }
   } else {
@@ -111,6 +112,16 @@ const verify = async (req, res, next) => {
     existingUser = new User({
       phone: phone,
     });
+
+    try {
+      await existingUser.save();
+    } catch (err) {
+      const error = new HttpError(
+        `Logging in failed, please try again later. err: ${err}`,
+        500,
+      );
+      return next(error);
+    }
   }
 
   let token;
