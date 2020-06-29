@@ -3,10 +3,13 @@ const { check } = require("express-validator");
 
 const chargesController = require("../controllers/charges-controllers");
 const fileUpload = require("../middleware/file-upload");
+const checkAuth = require("../middleware/check-auth");
 
 const router = express.Router();
 
 router.get("/", chargesController.getChargeList);
+
+router.use(checkAuth);
 
 router.post(
   "/createOperator",
