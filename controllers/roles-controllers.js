@@ -84,5 +84,74 @@ const createRole = async (req, res, next) => {
   res.status(201).json({ token: token, username: role.username });
 };
 
+const loginRole = async (req, res, next) => {
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return next(
+      new HttpError("Invalid inputs passed, please check your data.", 422),
+    );
+  }
+
+  const { username, password } = req.body;
+  let role;
+
+  try {
+    role = await Role.findOne({ username });
+  } catch (err) {
+    return next(
+      new HttpError("Fetching users failed, please try again later.", 500),
+    );
+  }
+
+  if (!role) {
+    return next(
+      new HttpError("Invalid credentials, could not log you in.", 403),
+    );
+  }
+
+  let isValidPassword = false;
+  try {
+    isValidPassword = await bcrypt.compare(password, role.password);
+  } catch (err) {
+    const error = new HttpError(
+      "Could not log you in, please check your credentials and try again." +
+        err,
+      500,
+    );
+    return next(error);
+  }
+
+  if (!isValidPassword) {
+    const error = new HttpError(
+      "Invalid credentials, could not log you in.",
+      403,
+    );
+    return next(error);
+  }
+
+  let token;
+  try {
+    token = jwt.sign(
+      { roleId: role.id, username: role.username },
+      "supersecret_dont_share",
+      { expiresIn: "1h" },
+    );
+  } catch (err) {
+    const error = new HttpError(
+      "Logging in failed, please try again later.",
+      500,
+    );
+    return next(error);
+  }
+
+  res.json({
+    roleId: role.id,
+    username: role.username,
+    token: token,
+  });
+};
+
 exports.getRoles = getRoles;
 exports.createRole = createRole;
+exports.loginRole = loginRole;

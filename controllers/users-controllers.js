@@ -68,7 +68,10 @@ const getVerificationCode = async (req, res, next) => {
 
   res
     .status(201)
-    .json({ message: "verification code has been sent to your number." });
+    .json({
+      message: "verification code has been sent to your number.",
+      success: true,
+    });
 };
 
 // Login:

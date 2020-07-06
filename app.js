@@ -4,6 +4,7 @@ const path = require("path");
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+require("./services/cache");
 
 //const placesRoutes = require("./routes/places-routes");
 const usersRoutes = require("./routes/users-routes");
@@ -31,7 +32,7 @@ app.use((req, res, next) => {
 
 app.use("/api/charges", chargesRoutes);
 app.use("/api/users", usersRoutes);
-app.use("/api/role", rolesRoutes);
+app.use("/api/roles", rolesRoutes);
 
 app.use((req, res, next) => {
   const error = new HttpError("Could not find this route.", 404);

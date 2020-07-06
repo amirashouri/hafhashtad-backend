@@ -4,6 +4,7 @@ const HttpError = require("../models/http-error");
 const Operator = require("../models/operator");
 const ChargePlan = require("../models/chargePlan");
 const ChargePackage = require("../models/chargePackage");
+const operator = require("../models/operator");
 
 const createOperator = async (req, res, next) => {
   const errors = validationResult(req);
@@ -186,7 +187,7 @@ const getChargeList = async (req, res, next) => {
           path: "package",
         },
       })
-      .exec();
+      .cache({ key: 1 });
   } catch (err) {}
 
   if (!operators) {

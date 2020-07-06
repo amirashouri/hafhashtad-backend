@@ -13,4 +13,10 @@ router.post(
   rolesController.createRole,
 );
 
+router.post(
+  "/loginRole",
+  [check("username").not().isEmpty(), check("password").not().isEmpty()],
+  rolesController.loginRole,
+);
+
 module.exports = router;
